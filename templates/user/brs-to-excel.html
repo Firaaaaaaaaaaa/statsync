@@ -1,0 +1,182 @@
+{% extends "base/base-user.html" %}
+{% load static %}
+
+{% block title %}BRS to Excel - StatSync{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>BRS to Excel</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard-user' %}">Home</a></li>
+      <li class="breadcrumb-item active"><a href="{% url 'brs-to-excel' %}">BRS to Excel</a></li>
+    </ol>
+  </nav>
+</div>
+<!-- End Page Title -->
+
+<!-- Upload PDF -->
+<div class="d-flex justify-content-center align-items-start pt-5 pb-0 w-100 fade-in">
+  <div class="card w-50 mx-auto mb-0">
+    <div class="row g-0">
+      <div class="col-md-3 d-flex align-items-center justify-content-center">
+        <img id="pdf-cover" src="{% static 'img/BPS.png' %}" class="img-fluid rounded-start" alt="Cover PDF" />
+      </div>
+      <div class="col-md-9">
+        <div class="card-body text-center">
+          <h5 class="card-title">Upload File PDF</h5>
+
+          <!-- Input File -->
+          <input type="file" id="fileInput" class="form-control mt-2" accept="application/pdf" />
+
+          <!-- Input Tanggal -->
+          <input type="date" id="dateInput" class="form-control mt-2" />
+
+          <!-- Notifikasi Error -->
+          <div id="error-message" class="text-danger mt-2" style="display: none">Tanggal harus diisi!</div>
+
+          <!-- Tombol Ekstrak -->
+          <button class="btn btn-primary mt-2 w-100" onclick="uploadPDF()">Ekstrak File</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabel Hasil Ekstraksi -->
+<div class="container mt-4 fade-in">
+  <div class="card p-3">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">No</th>
+            <th scope="col">Tema</th>
+            <th scope="col">Judul Data</th>
+            <th scope="col">Jenis tabel</th>
+            <th scope="col">Kolom</th>
+            <th scope="col">Data</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider" id="extracted-data">
+          <tr data-year="2025">
+                  <th scope="row" class="row-number"></th>
+                  <td>Januari</td>
+                  <td>2025</td>
+                  <td><a href="">Lihat Excel</a></td>
+                  <td>dascsa</td>
+                  <td>cssdcsc</td>
+                </tr>
+          <!-- Data akan dimuat di sini oleh JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-end mt-3">
+      <button class="btn btn-primary" onclick="downloadExcel()">Download Excel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("fileInput").addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const fileReader = new FileReader();
+    fileReader.onload = function () {
+      const typedarray = new Uint8Array(this.result);
+
+      pdfjsLib.getDocument(typedarray).promise.then(function (pdf) {
+        pdf.getPage(1).then(function (page) {
+          // Ambil halaman pertama
+          const scale = 1.5;
+          const viewport = page.getViewport({ scale: scale });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport,
+          };
+
+          page.render(renderContext).promise.then(function () {
+            const pdfCover = document.getElementById("pdf-cover");
+            pdfCover.src = canvas.toDataURL("image/png"); // Ubah canvas jadi gambar
+          });
+        });
+      });
+    };
+
+    fileReader.readAsArrayBuffer(file);
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetchExtractedData(); // Load data saat halaman pertama kali dibuka
+  });
+
+  function fetchExtractedData() {
+    fetch("/api/extracted-data/")
+      .then((response) => response.json())
+      .then((data) => {
+        let tableBody = document.getElementById("extracted-data");
+        tableBody.innerHTML = ""; // Kosongkan isi tabel sebelumnya
+
+        data.data.forEach((row, index) => {
+          let newRow = `
+                      <tr>
+                          <td>${index + 1}</td>
+                          <td>${row.title}</td>
+                          <td>${row.data1}</td>
+                          <td>${row.data2}</td>
+                          <td>${row.data3}</td>
+                      </tr>`;
+          tableBody.innerHTML += newRow;
+        });
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }
+</script>
+<script>
+  let pdfFileName = "Data"; // Default jika tidak ada PDF yang dipilih
+
+  document.getElementById("fileInput")?.addEventListener("change", function (event) {
+    let file = event.target.files[0];
+    if (file) {
+      pdfFileName = file.name.replace(".pdf", "").replace(/\s+/g, "_"); // Simpan nama file tanpa ekstensi
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    let rows = document.querySelectorAll("tbody tr");
+    rows.forEach((row, index) => {
+      let numberCell = row.querySelector(".row-number");
+      if (numberCell) {
+        numberCell.innerText = index + 1;
+      }
+    });
+  });
+
+  function getTableTitle() {
+    let firstRow = document.querySelector("#extracted-data tr:first-child td:nth-child(2)");
+    return firstRow ? firstRow.innerText.replace(/\s+/g, "_") : "Tabel";
+  }
+
+  function downloadExcel() {
+    let tableTitle = getTableTitle();
+    let fileName = `${tableTitle}_${pdfFileName}.xls`;
+
+    let table = document.querySelector("table");
+    let html = table.outerHTML.replace(/ /g, "%20");
+
+    let a = document.createElement("a");
+    a.href = "data:application/vnd.ms-excel," + html;
+    a.download = fileName;
+    a.click();
+  }
+</script>
+{% endblock %}

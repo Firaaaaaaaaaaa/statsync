@@ -1,0 +1,45 @@
+<aside id="sidebar" class="sidebar">
+  <ul class="sidebar-nav" id="sidebar-nav">
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'dashboard-admin' %}active{% else %}collapsed{% endif %}" href="{% url 'dashboard-admin' %}">
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <!-- End Dashboard Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'manage-users' %}active{% else %}collapsed{% endif %}" href="{% url 'manage-users' %}">
+        <i class="bi bi-people"></i>
+        <span>Manage User</span>
+      </a>
+    </li>
+    <!-- End Manage User Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'log-activity' %}active{% else %}collapsed{% endif %}" href="{% url 'log-activity' %}">
+        <i class="bi bi-table"></i>
+        <span>Log Activity</span>
+      </a>
+    </li>
+    <!-- End Log Activity Nav -->
+
+    <li class="nav-heading">Other</li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'profile-admin' %}active{% else %}collapsed{% endif %}" href="{% url 'profile-admin' %}">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+      </a>
+    </li>
+    <!-- End Profile Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% else %}collapsed{% endif %}" href="{% url 'logout' %}">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Log Out</span>
+      </a>
+    </li>
+  </ul>
+</aside>
+<!-- End Sidebar -->

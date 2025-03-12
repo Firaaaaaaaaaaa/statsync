@@ -1,0 +1,131 @@
+{% extends 'base/base-admin.html' %}
+
+{% block title %}Manage Users - StatSync{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>Manage User</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard-admin' %}">Home</a></li>
+      <li class="breadcrumb-item active"><a href="{% url 'manage-users' %}">Manage User</a></li>
+    </ol>
+  </nav>
+</div>
+<!-- End Page Title -->
+
+<section class="section dashboard">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card p-3">
+        <div class="d-flex justify-content-end mb-2">
+          <div class="input-group w-25">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari..." onkeyup="searchTable()" />
+          </div>
+        </div>
+        <table class="table table-hover" id="dataTable" style="width: 100%;">
+          <thead>
+            <tr>
+              <th scope="col">No</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Role</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            <!-- Data pengguna akan dimuat di sini -->
+            <tr>
+              <th scope="row" class="row-number"></th>
+              <td>John Doe</td>
+              <td>john.doe@example.com</td>
+              <td>
+                <ul class="navbar-nav">
+                  <li class="nav-item dropdown">
+                    <button class="btn btn-light dropdown-toggle px-4" data-bs-toggle="dropdown" aria-expanded="false">Admin</button>
+                    <ul class="dropdown-menu dropdown-menu-light">
+                      <li><a class="dropdown-item" href="#">User </a></li>
+                      <li><a class="dropdown-item" href="#">Admin</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <a class="text-danger delete-user" href="javascript:void(0);" data-id="1">Delete</a>
+              </td>
+            </tr>
+            <!-- Tambahkan lebih banyak baris sesuai kebutuhan -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Update row numbers on page load
+    updateRowNumbers();
+
+    // Handle delete user
+    document.querySelectorAll('.delete-user').forEach(function(button) {
+      button.addEventListener('click', function(event) {
+        event.preventDefault();
+        const userId = this.getAttribute('data-id');
+        // AJAX request to delete user
+        fetch(`/admin/delete-user/${userId}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Remove user row from table
+              const row = this.closest('tr');
+              row.remove();
+              updateRowNumbers(); // Update nomor setelah menghapus
+            } else {
+              // Show error message
+              alert('Error deleting user');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting user');
+          });
+      });
+    });
+  });
+
+  function updateRowNumbers() {
+    let rows = document.querySelectorAll("tbody tr");
+    rows.forEach((row, index) => {
+      let numberCell = row.querySelector(".row-number");
+      if (numberCell) {
+        numberCell.innerText = index + 1; // Update nomor urut
+      }
+    });
+  }
+
+  function searchTable() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let table = document.getElementById("dataTable");
+    let rows = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < rows.length; i++) {
+      let name = rows[i].getElementsByTagName("td")[0]?.textContent.toLowerCase() || "";
+      let email = rows[i].getElementsByTagName("td")[1]?.textContent.toLowerCase() || "";
+      let role = rows[i].getElementsByTagName("td")[2]?.textContent.toLowerCase() || "";
+
+      if (name.includes(input) || email.includes(input) || role.includes(input)) {
+        rows[i].style.display = "";
+      } else {
+        rows[i].style.display = "none";
+      }
+    }
+  }
+</script>
+{% endblock %}

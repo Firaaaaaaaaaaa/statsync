@@ -1,0 +1,61 @@
+{% extends "base/base-user.html" %}
+{% load static %}
+
+{% block title %}Rekapitulasi - StatSync{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>Rekapitulasi</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard-user' %}">Home</a></li>
+      <li class="breadcrumb-item active"><a href="{% url 'rekapitulasi' %}">Rekapitulasi</a></li>
+    </ol>
+  </nav>
+</div>
+<!-- End Page Title -->
+
+<div class="container fade-in">
+  <div class="row">
+    <!-- Card Kiri -->
+    <div class="col-md-6">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title" style="color: black">Rekapitulasi Keseluruhan</h5>
+          <i
+            class="bi bi-shield-lock"
+            style="font-size: 4rem; display: block; margin: 10px auto; color: #007bff; transition: transform 0.3s ease-in-out"
+            onmouseover="this.style.transform='scale(1.2)';"
+            onmouseout="this.style.transform='scale(1)';"
+          ></i>
+          <a class="btn btn-primary" href="{% url 'rekapitulasi-keseluruhan' %}">
+            <span>Lihat Detail</span>
+          </a>
+          <div id="reportsChartLeft"></div>
+        </div>
+        <div id="barChart" style="min-height: 60px" class="echart"></div>
+      </div>
+    </div>
+
+    <!-- Card Kanan -->
+    <div class="col-md-6">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title" style="color: black">Rekapitulasi Pribadi</h5>
+          <i
+            class="bi bi-person"
+            style="font-size: 4rem; display: block; margin: 10px auto; color: #28a745; transition: transform 0.3s ease-in-out"
+            onmouseover="this.style.transform='scale(1.2)';"
+            onmouseout="this.style.transform='scale(1)';"
+          ></i>
+          <a class="btn btn-primary" href="{% url 'rekapitulasi-pribadi' %}">
+            <span>Lihat Detail</span>
+          </a>
+          <div id="reportsChartLeft"></div>
+        </div>
+        <div id="barChart" style="min-height: 60px" class="echart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
