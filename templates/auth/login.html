@@ -74,6 +74,14 @@
                         <p class="small mb-0">Tidak Punya Akun? <a href="{% url 'register' %}">Buat Akun</a></p>
                       </div>
                     </form>
+                    <style>
+                      .was-validated .form-control:valid,
+                      .form-control.is-valid {
+                        border-color: #ced4da;
+                        padding-right: 0.75rem;
+                        background-image: none;
+                      }
+                    </style>
                   </div>
                 </div>
               </div>

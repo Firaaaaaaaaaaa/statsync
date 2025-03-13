@@ -90,6 +90,14 @@
                         <p class="small mb-0">Sudah punya akun? <a href="{% url 'login' %}">Log in</a></p>
                       </div>
                     </form>
+                    <style>
+                      .was-validated .form-control:valid,
+                      .form-control.is-valid {
+                        border-color: #ced4da;
+                        padding-right: 0.75rem;
+                        background-image: none;
+                      }
+                    </style>
                   </div>
                 </div>
 
@@ -116,6 +124,65 @@
     <script src="{% static 'vendor/simple-datatables/simple-datatables.js' %}"></script>
     <script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
     <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const passwordFeedback = document.getElementById("passwordFeedback");
+        const passwordStrengthFeedback = document.getElementById("passwordStrengthFeedback");
+        const confirmPasswordFeedback = document.getElementById("confirmPasswordFeedback");
+
+        function validatePassword() {
+          const password = passwordInput.value;
+          const confirmPassword = confirmPasswordInput.value;
+
+          // Cek apakah password kosong
+          if (!password) {
+            passwordInput.classList.add("is-invalid");
+            passwordFeedback.style.display = "block";
+          } else {
+            passwordInput.classList.remove("is-invalid");
+            passwordFeedback.style.display = "none";
+          }
+
+          // Cek kekuatan password (minimal 8 karakter, kombinasi huruf & angka)
+          const strongPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+          if (password && !strongPasswordRegex.test(password)) {
+            passwordInput.classList.add("is-invalid");
+            passwordStrengthFeedback.style.display = "block";
+          } else {
+            passwordInput.classList.remove("is-invalid");
+            passwordStrengthFeedback.style.display = "none";
+          }
+        }
+
+        function validateConfirmPassword() {
+          const password = passwordInput.value;
+          const confirmPassword = confirmPasswordInput.value;
+
+          // Jika confirm password kosong
+          if (!confirmPassword) {
+            confirmPasswordInput.classList.add("is-invalid");
+            confirmPasswordFeedback.innerText = "Masukkan password!";
+            confirmPasswordFeedback.style.display = "block";
+          }
+          // Jika password dan confirm password tidak sama
+          else if (confirmPassword !== password) {
+            confirmPasswordInput.classList.add("is-invalid");
+            confirmPasswordFeedback.innerText = "Password tidak sama!";
+            confirmPasswordFeedback.style.display = "block";
+          }
+          // Jika password cocok
+          else {
+            confirmPasswordInput.classList.remove("is-invalid");
+            confirmPasswordFeedback.style.display = "none";
+          }
+        }
+
+        passwordInput.addEventListener("input", validatePassword);
+        confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+      });
+    </script>
 
     <!-- Template Main JS File -->
     <script src="{% static 'js/main.js' %}"></script>
