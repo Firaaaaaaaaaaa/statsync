@@ -128,34 +128,46 @@
 
                     <div class="row mb-3">
                       <div class="col-lg-3 col-md-4 label">Full Name</div>
-                      <div class="col-lg-3 col-md-4">Kevin Anderson</div>
+                      <div class="col-lg-3 col-md-4">{{ user.first_name }}</div>
                     </div>
 
                     <div class="row mb-3">
                       <div class="col-lg-3 col-md-4 label">Role</div>
-                      <div class="col-lg-9 col-md-8">User</div>
+                      <div class="col-lg-9 col-md-8">
+                        {% if user.id_role %} 
+                          {{ user.id_role.nama_role }}
+                        {% else %}
+                          No Role Assigned
+                        {% endif %}
+                      </div>
                     </div>
 
                     <div class="row mb-3">
                       <div class="col-lg-3 col-md-4 label">Username</div>
-                      <div class="col-lg-9 col-md-8">Kanderson</div>
+                      <div class="col-lg-9 col-md-8">{{ user.username }}</div>
                     </div>
                   </div>
 
                   <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                    {% if messages %}
+                      {% for message in messages %}
+                        <div class="alert alert-success">{{ message }}</div>
+                      {% endfor %}
+                    {% endif %}
                     <!-- Profile Edit Form -->
-                    <form>
+                    <form method="POST" action="{% url 'update_profile' user.id %}">
+                      {% csrf_token %}
                       <div class="row mb-3">
                         <label for="fullName" class="col-md-4 col-lg-3 col-form-label label">Full Name</label>
                         <div class="col-md-8 col-lg-9">
-                          <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson" />
+                          <input name="fullName" type="text" class="form-control" id="fullName" value="{{ user.get_full_name }}" />
                         </div>
                       </div>
 
                       <div class="row mb-3">
                         <label for="username" class="col-md-4 col-lg-3 col-form-label label">Username</label>
                         <div class="col-md-8 col-lg-9">
-                          <input name="username" type="text" class="form-control" id="username" value="Ikan22" />
+                          <input name="username" type="text" class="form-control" id="username" value="{{ user.username }}" />
                         </div>
                       </div>
                       <div class="text-center">
@@ -166,7 +178,8 @@
                   </div>
                   <div class="tab-pane fade pt-3" id="profile-change-password">
                     <!-- Change Password Form -->
-                    <form>
+                    <form method="POST" action="{% url 'change-password' %}">
+                      {% csrf_token %}
                       <div class="row mb-3">
                         <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label label">Current Password</label>
                         <div class="col-md-8 col-lg-9">
