@@ -1,15 +1,15 @@
 {% extends "base/base-user.html" %}
 
-{% block title %}Rekapitulasi Pribadi - StatSync{% endblock %}
+{% block title %}Personal Recap - StatSync{% endblock %}
 
 {% block content %}
 <div class="pagetitle">
-  <h1>Rekapitulasi Pribadi</h1>
+  <h1>Personal Recap</h1>
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'dashboard-user' %}">Home</a></li>
-      <li class="breadcrumb-item active"><a href="{% url 'rekapitulasi' %}">Rekapitulasi</a></li>
-      <li class="breadcrumb-item active"><a href="{% url 'rekapitulasi-pribadi' %}">Rekapitulasi Pribadi</a></li>
+      <li class="breadcrumb-item active"><a href="{% url 'rekapitulasi' %}">Recap</a></li>
+      <li class="breadcrumb-item active"><a href="{% url 'rekapitulasi-pribadi' %}">Personal Recap</a></li>
     </ol>
   </nav>
 </div>
@@ -27,9 +27,9 @@
             <div class="d-flex align-items-center gap-3">
               <!-- Dropdown Tahun -->
               <div class="col-md-6">
-                <label for="filterYear" class="form-label">Tahun</label>
+                <label for="filterYear" class="form-label">Year</label>
                 <select id="filterYear" class="form-select">
-                  <option selected disabled>Pilih Tahun</option>
+                  <option selected disabled>Select Year</option>
                   <option value="2025">2025</option>
                   <option value="2024">2024</option>
                   <option value="2023">2023</option>
@@ -40,9 +40,9 @@
 
               <!-- Dropdown Bulan -->
               <div class="col-md-7">
-                <label for="filterMonth" class="form-label">Bulan</label>
+                <label for="filterMonth" class="form-label">Month</label>
                 <select id="filterMonth" class="form-select">
-                  <option selected disabled>Pilih Bulan</option>
+                  <option selected disabled>Select Month</option>
                   <option value="1">Januari</option>
                   <option value="2">Februari</option>
                   <option value="3">Maret</option>
@@ -68,10 +68,10 @@
             <thead>
               <tr>
                 <th scope="col">No</th>
-                <th scope="col">Tanggal Ekstraksi</th>
-                <th scope="col">Judul BRS</th>
-                <th scope="col">Tanggal Terbit</th>
-                <th scope="col">Aksi</th>
+                <th scope="col">Extraction Date</th>
+                <th scope="col">BRS Title</th>
+                <th scope="col">Publication Date</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody class="table-group-divider" id="brsTable">
@@ -81,25 +81,6 @@
                 <td>15/01/2025</td>
                 <td>
                   <a href="#" class="text-primary edit-btn">Edit</a>
-                  <a href="#" class="text-danger delete-btn">Hapus</a>
-                </td>
-              </tr>
-              <tr data-year="2025" data-month="2">
-                <td>20/02/2025</td>
-                <td>Inflasi</td>
-                <td>15/01/2025</td>
-                <td>
-                  <a href="#" class="text-primary edit-btn">Edit</a>
-                  <a href="#" class="text-danger delete-btn">Hapus</a>
-                </td>
-              </tr>
-              <tr data-year="2024" data-month="3">
-                <td>10/03/2024</td>
-                <td>Pengangguran</td>
-                <td>15/01/2025</td>
-                <td>
-                  <a href="#" class="text-primary edit-btn">Edit</a>
-                  <a href="#" class="text-danger delete-btn">Hapus</a>
                 </td>
               </tr>
             </tbody>
