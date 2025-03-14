@@ -1,8 +1,4 @@
-{% extends 'base/base-admin.html' %}
-
-{% block title %}Dashboard - StatSync{% endblock %}
-
-{% block content %}
+{% extends 'base/base-admin.html' %} {% block title %}Dashboard - StatSync{% endblock %} {% block content %}
 <div class="pagetitle">
   <h1>Dashboard</h1>
   <nav>
@@ -61,10 +57,9 @@
           <div class="row">
             <!-- Report Chart Kiri -->
             <div class="col-md-6">
-              <div class="card">
-                <div class="filter"></div>
+              <div class="card" style="height: 100%">
                 <div class="card-body">
-                  <h5 class="card-title text-center">Mounthly BRS</h5>
+                  <h5 class="card-title text-center" style="color: black">Mounthly BRS</h5>
                   <div id="reportsChartLeft"></div>
                 </div>
               </div>
@@ -72,40 +67,48 @@
 
             <!-- Report Chart Kanan -->
             <div class="col-md-6">
-              <div class="card">
+              <div class="card" style="height: 100%">
                 <div class="card-body">
                   <h5 class="card-title text-center" style="color: black">BRS Theme</h5>
-                  <div id="reportsChartLeft"></div>
+                  <div id="reportsChartRight"></div>
                 </div>
-                <div id="barChart" style="min-height: 360px" class="echart"></div>
               </div>
             </div>
 
             <script>
               document.addEventListener("DOMContentLoaded", () => {
-                var chart = echarts.init(document.querySelector("#barChart"));
-                var option = {
-                  tooltip: {
-                    trigger: "axis",
-                  },
-                  xAxis: {
-                    type: "category",
-                    data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-                  },
-                  yAxis: {
-                    type: "value",
-                  },
-                  series: [
-                    {
-                      data: [120, 200, 150, 80, 70, 110, 130],
-                      type: "bar",
-                      itemStyle: {
-                        color: "rgba(54, 162, 235, 0.6)",
+                const options = {
+                  series: [{ name: "Sales", data: [120, 200, 150, 80, 70, 110, 130] }],
+                  chart: {
+                    height: 350,
+                    type: "bar",
+                    toolbar: { show: false },
+                    animations: {
+                      enabled: true,
+                      easing: "easeout",
+                      speed: 1500,
+                      animateGradually: {
+                        enabled: true,
+                        delay: 800, // Animasi berurutan dari kiri ke kanan
+                      },
+                      dynamicAnimation: {
+                        enabled: true,
+                        speed: 1500,
                       },
                     },
-                  ],
+                  },
+                  colors: ["rgba(54, 162, 235, 0.6)"],
+                  dataLabels: { enabled: false },
+                  xaxis: {
+                    categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                  },
+                  tooltip: {
+                    x: { formatter: (val) => val },
+                  },
                 };
-                chart.setOption(option);
+
+                // Render Chart Kanan
+                new ApexCharts(document.querySelector("#reportsChartRight"), options).render();
               });
             </script>
           </div>
@@ -143,9 +146,6 @@
 
             // Render Chart Kiri
             new ApexCharts(document.querySelector("#reportsChartLeft"), options).render();
-
-            // Render Chart Kanan
-            new ApexCharts(document.querySelector("#reportsChartRight"), options).render();
           });
         </script>
       </div>
