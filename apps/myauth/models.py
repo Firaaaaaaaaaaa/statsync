@@ -14,6 +14,11 @@ class Role(models.Model):
 
 class CustomUser(AbstractUser):
     id_role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
+    
+
+#    @property
+ #   def full_name(self):
+  #      return f"{self.first_name}  {self.last_name}".strip()
 
     def __str__(self):
         return self.username
