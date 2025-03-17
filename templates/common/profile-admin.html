@@ -148,11 +148,6 @@
                   </div>
 
                   <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-                    {% if messages %}
-                      {% for message in messages %}
-                        <div class="alert alert-success">{{ message }}</div>
-                      {% endfor %}
-                    {% endif %}
                     <!-- Profile Edit Form -->
                     <form method="POST" action="{% url 'update_profile' user.id %}">
                       {% csrf_token %}
