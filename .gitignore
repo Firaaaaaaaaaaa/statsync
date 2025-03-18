@@ -25,3 +25,6 @@ settings.py
 .idea/
 .DS_Store
 Thumbs.db
+statsync/client_secrets.json
+statsync/brs-sheets-api.json
+drive_api.py
