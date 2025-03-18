@@ -26,17 +26,31 @@
         <div class="card-body text-center">
           <h5 class="card-title">Upload File PDF</h5>
 
-          <!-- Input File -->
-          <input type="file" id="fileInput" class="form-control mt-2" accept="application/pdf" />
+          <!-- Tampilkan pesan error/sukses jika ada -->
+          {% if messages %}
+          <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
 
-          <!-- Input Tanggal -->
-          <input type="date" id="dateInput" class="form-control mt-2" />
+          <form id="uploadForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %} 
+            <!-- Input File --> 
+            <input type="file" id="fileInput" name="pdf_file" class="form-control mt-2" accept="application/pdf" required/>
 
-          <!-- Notifikasi Error -->
-          <div id="error-message" class="text-danger mt-2" style="display: none">Tanggal harus diisi!</div>
+            <!-- Input Tanggal -->
+            <input type="date" id="dateInput" name="tgl_terbit" class="form-control mt-2" required/>
 
-          <!-- Tombol Ekstrak -->
-          <button class="btn btn-primary mt-2 w-100" onclick="uploadPDF()">Ekstrak File</button>
+            <!-- Notifikasi Error -->
+            <div id="error-message" class="text-danger mt-2" style="display: none">Tanggal harus diisi!</div>
+
+            <!-- Tombol Ekstrak -->
+            <button type="submit" class="btn btn-primary mt-2 w-100" >Ekstrak File</button>
+          </form>
         </div>
       </div>
     </div>
@@ -51,29 +65,25 @@
         <thead>
           <tr>
             <th scope="col">No</th>
-            <th scope="col">Tema</th>
-            <th scope="col">Judul Data</th>
-            <th scope="col">Jenis tabel</th>
-            <th scope="col">Kolom</th>
-            <th scope="col">Data</th>
+            <th scope="col">Judul Sheet</th>
+            <th scope="col">Preview</th>
           </tr>
         </thead>
-        <tbody class="table-group-divider" id="extracted-data">
-          <tr data-year="2025">
-                  <th scope="row" class="row-number"></th>
-                  <td>Januari</td>
-                  <td>2025</td>
-                  <td><a href="">Lihat Excel</a></td>
-                  <td>dascsa</td>
-                  <td>cssdcsc</td>
-                </tr>
+        <tbody class="table-group-divider" id="extracted-data"> 
+          {% for sheet in sheet_data %} 
+          <tr>
+            <th scope="row" class="row-number">{{ forloop.counter }}</th>
+            <td>{{ sheet.judul_sheet }}</td>
+            <td><a href="{{ sheet.file_sheet }}" target="_blank">Lihat Sheet</a></td>
+          </tr>
+          {% endfor %}
           <!-- Data akan dimuat di sini oleh JavaScript -->
         </tbody>
       </table>
     </div>
 
     <div class="text-end mt-3">
-      <button class="btn btn-primary" onclick="downloadExcel()">Download Excel</button>
+      <button class="btn btn-primary" onclick="downloadExcel('{{ brs_data.last.id_file }}')">Download Excel</button>
     </div>
   </div>
 </div>
@@ -114,33 +124,7 @@
     fileReader.readAsArrayBuffer(file);
   });
 </script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    fetchExtractedData(); // Load data saat halaman pertama kali dibuka
-  });
 
-  function fetchExtractedData() {
-    fetch("/api/extracted-data/")
-      .then((response) => response.json())
-      .then((data) => {
-        let tableBody = document.getElementById("extracted-data");
-        tableBody.innerHTML = ""; // Kosongkan isi tabel sebelumnya
-
-        data.data.forEach((row, index) => {
-          let newRow = `
-                      <tr>
-                          <td>${index + 1}</td>
-                          <td>${row.title}</td>
-                          <td>${row.data1}</td>
-                          <td>${row.data2}</td>
-                          <td>${row.data3}</td>
-                      </tr>`;
-          tableBody.innerHTML += newRow;
-        });
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-</script>
 <script>
   let pdfFileName = "Data"; // Default jika tidak ada PDF yang dipilih
 
@@ -166,17 +150,105 @@
     return firstRow ? firstRow.innerText.replace(/\s+/g, "_") : "Tabel";
   }
 
-  function downloadExcel() {
-    let tableTitle = getTableTitle();
-    let fileName = `${tableTitle}_${pdfFileName}.xls`;
+  function downloadExcel(id_file) {
+    console.log("Download ID:", id_file);  // Debugging
 
-    let table = document.querySelector("table");
-    let html = table.outerHTML.replace(/ /g, "%20");
+    if (!id_file) {
+        alert("File tidak tersedia untuk diunduh.");
+        return;
+    }
+
+    let downloadUrl = `https://docs.google.com/spreadsheets/d/${id_file}/export?format=xlsx`;
+    console.log("Download URL:", downloadUrl); // Debugging
 
     let a = document.createElement("a");
-    a.href = "data:application/vnd.ms-excel," + html;
-    a.download = fileName;
+    a.href = downloadUrl;
+    a.download = "Hasil_Ekstraksi.xlsx";  
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+}
+
+</script>
+
+<script>
+  document.querySelector("#uploadForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    
+    let formData = new FormData(this);
+    let submitButton = this.querySelector("button[type='submit']");
+    submitButton.disabled = true; // Matikan tombol selama proses
+    submitButton.innerText = "Memproses...";
+
+    fetch("{% url 'brs-to-excel' %}", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || "Terjadi kesalahan saat mengunggah.");
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            alert(data.error);  // Tampilkan peringatan ke user
+        } else {
+            window.location.reload();  // Reload jika sukses
+        }
+    })
+    .catch(error => {
+        alert(error.message);
+        console.error("Error:", error);
+    })
+    .finally(() => {
+        submitButton.disabled = false;
+        submitButton.innerText = "Ekstrak File";
+    });
+});
+</script>
+
+<script>
+  function updateRowNumbers() {
+    let rows = document.querySelectorAll("tbody tr");
+    rows.forEach((row, index) => {
+      let numberCell = row.querySelector("th");
+      if (numberCell) {
+        numberCell.innerText = index + 1; // Update nomor urut
+   }
+});
+}
+</script>
+
+<script>
+  function uploadPDF() {
+    let formData = new FormData(document.getElementById("uploadForm"));
+    
+    fetch("{% url 'brs-to-excel' %}", {
+      method: "POST",
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Gagal mengunggah file. Coba lagi.");
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        alert("Ekstraksi berhasil! Data diperbarui.");
+        location.reload(); // Reload untuk memuat hasil
+      } else {
+        alert(data.error || "Terjadi kesalahan.");
+      }
+    })
+    .catch(error => {
+      alert(error.message);
+      console.error("Fetch Error:", error);
+    });
   }
 </script>
+
 {% endblock %}

@@ -75,14 +75,22 @@
               </tr>
             </thead>
             <tbody class="table-group-divider" id="brsTable">
-              <tr data-year="2025" data-month="1">
-                <td>15/01/2025</td>
-                <td>Kemiskinan</td>
-                <td>15/01/2025</td>
+              {% for brs in brs_data %}
+              <tr data-year="{{ brs.tgl_terbit|date:'Y' }}" data-month="{{ brs.tgl_terbit|date:'n' }}">
+                <!-- <td>{{ forloop.counter }}</td> -->
+                <th scope="row"></th>
+                <td>{{ brs.tgl_up|date:"d/m/Y" }}</td>
+                <td>{{ brs.judul_brs }}</td>
+                <td>{{ brs.tgl_terbit|date:"d/m/Y" }}</td>
                 <td>
-                  <a href="#" class="text-primary edit-btn">Edit</a>
+                  <a href="" class="text-primary edit-btn" data-id="{{ brs.id_brsexcel }}" data-title="{{ brs.judul_brs }}" data-date="{{ brs.tgl_terbit|date:'d/m/Y' }}">Edit</a>
                 </td>
               </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">No data available</td>
+              </tr>
+              {% endfor %}
             </tbody>
           </table>
           <!-- End Table -->
@@ -92,7 +100,139 @@
   </div>
 </section>
 
+<!-- Modal Form -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Recap</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          {% csrf_token %}
+          <input type="hidden" id="edit_id" name="edit_id">
+          <div class="mb-3">
+            <label for="edit_title" class="form-label">BRS Title</label>
+            <input type="text" class="form-control" id="edit_title" name="judul_brs" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit_date" class="form-label">Publication Date</label>
+            <input type="date" class="form-control" id="edit_date" name="tgl_terbit" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const editButtons = document.querySelectorAll(".edit-btn");
+
+    editButtons.forEach(btn => {
+      btn.addEventListener("click", function () {
+        document.getElementById("edit_id").value = this.dataset.id;
+        document.getElementById("edit_title").value = this.dataset.title;
+        document.getElementById("edit_date").value = this.dataset.date;
+        new bootstrap.Modal(document.getElementById("editModal")).show();
+      });
+    });
+
+    document.getElementById("editForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+      fetch("", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === "success") {
+          location.reload();  // Reload halaman setelah sukses edit
+        } else {
+          alert("Edit gagal: " + JSON.stringify(data.errors));
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  function updateTableNumbers() {
+    let visibleRows = document.querySelectorAll("tbody tr:not([style*='display: none'])");
+    visibleRows.forEach((row, index) => {
+      row.querySelector("th").textContent = index + 1; // Update nomor urut
+    });
+  }
+
+  document.getElementById("filterYear").addEventListener("change", function () {
+    var selectedYear = this.value;
+    var rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function (row) {
+      if (row.getAttribute("data-year") === selectedYear) {
+        row.style.display = "none"; // Sembunyikan dulu
+        setTimeout(() => {
+          row.style.display = "";
+          row.style.opacity = 0;
+          row.style.transition = "opacity 0.5s ease-in-out";
+          setTimeout(() => {
+            row.style.opacity = 1;
+            updateTableNumbers(); // Update nomor urut setelah filter
+          }, 50);
+        }, 100);
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
+
+  document.getElementById("filterMonth").addEventListener("change", function () {
+    var selectedMonth = this.value;
+    var rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function (row) {
+      if (row.getAttribute("data-month") === selectedMonth) {
+        row.style.display = "none"; // Sembunyikan dulu
+        setTimeout(() => {
+          row.style.display = "";
+          row.style.opacity = 0;
+          row.style.transition = "opacity 0.5s ease-in-out";
+          setTimeout(() => {
+            row.style.opacity = 1;
+            updateTableNumbers(); // Update nomor urut setelah filter
+          }, 50);
+        }, 100);
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
+
+  document.getElementById("resetFilter").addEventListener("click", function () {
+    document.getElementById("filterYear").selectedIndex = 0;
+    document.getElementById("filterMonth").selectedIndex = 0;
+
+    var rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function (row) {
+      row.style.opacity = 0;
+      row.style.display = "";
+      row.style.transition = "opacity 0.5s ease-in-out";
+      setTimeout(() => {
+        row.style.opacity = 1;
+        updateTableNumbers(); // Update nomor setelah reset
+      }, 50);
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", updateTableNumbers);
+</script>
+
+<!-- <script>
   document.addEventListener("DOMContentLoaded", function () {
     const filterYear = document.getElementById("filterYear");
     const filterMonth = document.getElementById("filterMonth");
@@ -124,10 +264,10 @@
       tableRows.forEach((row) => (row.style.display = ""));
     });
   });
-</script>
+</script> -->
 
 <!-- script Nomor -->
-<script>
+<!-- <script>
   document.addEventListener("DOMContentLoaded", function () {
     const tableRows = document.querySelectorAll("#brsTable tr");
 
@@ -137,5 +277,5 @@
       row.insertAdjacentElement("afterbegin", cell);
     });
   });
-</script>
+</script> -->
 {% endblock %}

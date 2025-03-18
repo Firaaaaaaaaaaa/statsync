@@ -75,20 +75,21 @@
               </tr>
             </thead>
             <tbody class="table-group-divider">
-              <tr data-year="2025">
+              {% for brs in brs_data %}
+              <tr data-year="{{ brs.tgl_terbit|date:'Y' }}" data-month="{{ brs.tgl_terbit|date:'n' }}">
                 <th scope="row"></th>
-                <td>kemiskinan</td>
-                <td>Januari</td>
-                <td>2025</td>
-                <td><a href="">Unduh Excel</a></td>
+                <td>{{ brs.judul_brs }}</td>
+                <td>{{ brs.tgl_terbit|date:"F" }}</td>
+                <td>{{ brs.tgl_terbit|date:"Y" }}</td>
+                <td>
+                  <a href="https://docs.google.com/spreadsheets/d/{{ brs.id_file }}/export?format=xlsx" class="text-primary">Unduh Excel</a>
+                </td>
               </tr>
-              <tr data-year="2025">
-                <th scope="row"></th>
-                <td>kemiskinan</td>
-                <td>Februari</td>
-                <td>2025</td>
-                <td><a href="">Unduh Excel</a></td>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">No data available</td>
               </tr>
+              {% endfor %}
             </tbody>
           </table>
           <!-- End Table -->
@@ -128,8 +129,31 @@
     });
   });
 
+  document.getElementById("filterMonth").addEventListener("change", function () {
+    var selectedMonth = this.value;
+    var rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function (row) {
+      if (row.getAttribute("data-month") === selectedMonth) {
+        row.style.display = "none"; // Sembunyikan dulu
+        setTimeout(() => {
+          row.style.display = "";
+          row.style.opacity = 0;
+          row.style.transition = "opacity 0.5s ease-in-out";
+          setTimeout(() => {
+            row.style.opacity = 1;
+            updateTableNumbers(); // Update nomor urut setelah filter
+          }, 50);
+        }, 100);
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
+
   document.getElementById("resetFilter").addEventListener("click", function () {
-    document.getElementById("filterYear").value = "Pilih Tahun"; // Reset dropdown
+    document.getElementById("filterYear").selectedIndex = 0;
+    document.getElementById("filterMonth").selectedIndex = 0;
     var rows = document.querySelectorAll("tbody tr");
 
     rows.forEach(function (row) {

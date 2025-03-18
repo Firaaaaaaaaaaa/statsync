@@ -73,9 +73,10 @@ def dashboard_user(request):
 
 def user_logout(request):
     logout(request)
-    messages.success(request, "Logout berhasil!")
-    return redirect('login')
-
+    request.session.flush()
+    response = redirect('login')
+    response.delete_cookie('sessionid')  # Pastikan cookie sesi dihapus
+    return response
 
 
 
