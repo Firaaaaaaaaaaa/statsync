@@ -3,8 +3,14 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from apps.myauth.models import CustomUser, Role
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import logout
+from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import never_cache
+from django.contrib import messages
+
+
 
 
 @login_required
@@ -30,8 +36,20 @@ def change_user_role(request):
     return JsonResponse({"success": False, "error": "Invalid request"})
 
 @login_required
+@never_cache
 def dashboard_admin(request):
     return render(request, 'admin/dashboard-admin.html')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@login_required
+def dashboard_admin(request):
+    return render(request, 'admin/dashboard-admin.html')
+
+@login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def dashboard_admin(request):
+    total_users = CustomUser.objects.count()  # Hitung total user
+    return render(request, 'admin/dashboard-admin.html', {'total_users': total_users})
 
 @login_required
 def log_activity(request):
@@ -108,3 +126,50 @@ def change_password(request):
         return redirect('profile-admin')  # Kembali ke halaman profil
 
     return redirect('profile-admin')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def custom_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+
+            # Cek parameter next agar hanya redirect ke halaman yang diizinkan
+            next_url = request.GET.get("next")
+            if next_url:
+                return redirect(next_url)
+
+            return redirect('dashboard-admin')  # Redirect default setelah login
+
+        else:
+            return render(request, 'login.html', {'error': 'Username atau password salah'})
+
+    return render(request, 'login.html')
+
+def custom_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard-admin')  # Redirect ke halaman dashboard
+        else:
+            messages.error(request, "Username atau password salah!")
+            return redirect('login')  # Redirect kembali ke halaman login
+    
+    return render(request, 'login.html')
+
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def logout_view(request):
+    logout(request)
+    request.session.flush()  # Hapus seluruh data sesi
+    return redirect('login')
+

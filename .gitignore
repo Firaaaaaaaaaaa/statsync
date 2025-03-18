@@ -25,6 +25,11 @@ settings.py
 .idea/
 .DS_Store
 Thumbs.db
-statsync/client_secrets.json
-statsync/brs-sheets-api.json
-drive_api.py
+
+# file JSON di folder pdf_processing
+statsync/apps/myuser/pdf_processing/brs-sheets-api.json
+statsync/apps/myuser/pdf_processing/client_secrets.json
+
+# drive_api.py
+statsync/apps/myuser/pdf_processing/drive_api.py
+
