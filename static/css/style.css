@@ -306,7 +306,7 @@ h6 {
 .breadcrumb a {
   color: #899bbd;
   transition: 0.3s;
-  text-decoration: none
+  text-decoration: none;
 }
 
 .breadcrumb a:hover {
@@ -342,7 +342,6 @@ h6 {
   background-color: #fff;
   color: #4154f1;
   border-bottom: 2px solid #4154f1;
-  
 }
 
 /*--------------------------------------------------------------

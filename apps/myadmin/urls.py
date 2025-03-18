@@ -10,5 +10,6 @@ urlpatterns = [
     path('profile/', views.profile_admin, name='profile-admin'),  # Tambahkan pola URL untuk profile-admin
     path("update-profile/<int:user_id>/", views.update_profile, name="update_profile"),
     path('change-password/', views.change_password, name='change-password'),
+    path('logout/', views.logout_view, name='logout'),
 
 ]

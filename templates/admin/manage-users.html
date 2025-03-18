@@ -1,8 +1,4 @@
-{% extends 'base/base-admin.html' %}
-
-{% block title %}Manage Users - StatSync{% endblock %}
-
-{% block content %}
+{% extends 'base/base-admin.html' %} {% block title %}Manage Users - StatSync{% endblock %} {% block content %}
 <div class="pagetitle">
   <h1>Manage User</h1>
   <nav>
@@ -25,80 +21,72 @@
           </div>
         </div>
 
-        <table class="table table-hover" id="dataTable" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Role</th>
-                </tr>
-            </thead>
-            <tbody id="user-table-body">
-                {% for user in users %}
-                <tr>
-                    <th scope="row" class="row-number">{{ forloop.counter }}</th>
-                    <td>{{ user.username }}</td>
-                    <td>
-                        <ul class="navbar-nav">
-                            <li class="nav-item dropdown">
-                                <button class="btn btn-light dropdown-toggle px-4" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ user.id_role.nama_role|default:"No Role" }}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-light">
-                                    {% for role in roles %}
-                                    <li>
-                                        <a class="dropdown-item change-role" href="#" 
-                                            data-user-id="{{ user.id }}" 
-                                            data-role-id="{{ role.id_role }}">
-                                            {{ role.nama_role }}
-                                        </a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+        <table class="table table-hover" id="dataTable" style="width: 100%">
+          <thead>
+            <tr>
+              <th scope="col">No</th>
+              <th scope="col">Name</th>
+              <th scope="col">Role</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            {% for user in users %}
+            <tr>
+              <th scope="row" class="row-number">{{ forloop.counter }}</th>
+              <td>{{ user.username }}</td>
+              <td>
+                <ul class="navbar-nav">
+                  <li class="nav-item dropdown">
+                    <button class="btn btn-light dropdown-toggle px-4" data-bs-toggle="dropdown" aria-expanded="false">{{ user.id_role.nama_role|default:"No Role" }}</button>
+                    <ul class="dropdown-menu dropdown-menu-light">
+                      {% for role in roles %}
+                      <li>
+                        <a class="dropdown-item change-role" href="#" data-user-id="{{ user.id }}" data-role-id="{{ role.id_role }}"> {{ role.nama_role }} </a>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 </section>
 
-
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".change-role").forEach(function (element) {
-        element.addEventListener("click", function (event) {
-            event.preventDefault();
+      element.addEventListener("click", function (event) {
+        event.preventDefault();
 
-            let userId = this.getAttribute("data-user-id");
-            let roleId = this.getAttribute("data-role-id");
+        let userId = this.getAttribute("data-user-id");
+        let roleId = this.getAttribute("data-role-id");
 
-            fetch("{% url 'change_user_role' %}", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({ user_id: userId, role_id: roleId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Role updated to " + data.new_role);
-                    location.reload();  // Refresh halaman untuk memperbarui tampilan
-                } else {
-                    alert("Failed to update role: " + data.error);
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
+        fetch("{% url 'change_user_role' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({ user_id: userId, role_id: roleId }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Role updated to " + data.new_role);
+              location.reload(); // Refresh halaman untuk memperbarui tampilan
+            } else {
+              alert("Failed to update role: " + data.error);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      });
     });
-});
+  });
 </script>
 
 <script>
@@ -119,17 +107,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let visibleIndex = 0; // Untuk menyusun ulang nomor baris yang terlihat
 
     for (let i = 1; i < rows.length; i++) {
-        let name = rows[i].getElementsByTagName("td")[0]?.textContent.toLowerCase() || "";
-        let role = rows[i].getElementsByTagName("td")[1]?.textContent.toLowerCase() || "";
+      let name = rows[i].getElementsByTagName("td")[0]?.textContent.toLowerCase() || "";
+      let role = rows[i].getElementsByTagName("td")[1]?.textContent.toLowerCase() || "";
 
-        if (name.includes(input) || role.includes(input)) {
-            rows[i].style.display = "";
-            visibleIndex++; 
-            rows[i].querySelector("th").innerText = visibleIndex; // Perbarui nomor urut
-        } else {
-            rows[i].style.display = "none";
-        }
+      if (name.includes(input) || role.includes(input)) {
+        rows[i].style.display = "";
+        visibleIndex++;
+        rows[i].querySelector("th").innerText = visibleIndex; // Perbarui nomor urut
+      } else {
+        rows[i].style.display = "none";
+      }
     }
-}
+  }
 </script>
 {% endblock %}

@@ -39,6 +39,16 @@
         <i class="bi bi-box-arrow-left"></i>
         <span>Log Out</span>
       </a>
+      <script>
+        (function () {
+          if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+          }
+          window.onpopstate = function () {
+            window.location.href = "{% url 'login' %}";
+          };
+        })();
+      </script>
     </li>
   </ul>
 </aside>
