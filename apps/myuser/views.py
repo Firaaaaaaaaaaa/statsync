@@ -77,7 +77,7 @@ def brstoexcel(request):
 
             extracted_title = extract_brs_title(file_path) or uploaded_file.name
 
-            if BRSExcel.objects.filter(judul_brs=extracted_title, id=request.user).exists():
+            if BRSExcel.objects.filter(judul_brs=extracted_title).exists():
                 os.remove(file_path) 
                 return JsonResponse({"error": "BRS dengan judul ini sudah pernah diunggah."}, status=400)
 
