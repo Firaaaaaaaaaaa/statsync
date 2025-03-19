@@ -9,7 +9,11 @@ from django.contrib.auth import logout
 from django.views.decorators.cache import cache_control
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
-
+from apps.myauth.models import CustomUser
+from apps.myuser.models import BRSExcel
+import json
+from django.utils.timezone import now
+from django.db.models import Count
 
 
 
@@ -37,23 +41,69 @@ def change_user_role(request):
 
 @login_required
 @never_cache
-def dashboard_admin(request):
-    return render(request, 'admin/dashboard-admin.html')
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required
-def dashboard_admin(request):
-    return render(request, 'admin/dashboard-admin.html')
-
-@login_required
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard_admin(request):
-    total_users = CustomUser.objects.count()  # Hitung total user
-    return render(request, 'admin/dashboard-admin.html', {'total_users': total_users})
+    # Grafik BRS Perbulan
+    total_users = CustomUser.objects.count()  
+    user_brs_count = BRSExcel.objects.filter(id=request.user).count()
+    total_brs_uploaded = BRSExcel.objects.count()
+
+    current_year = now().year
+    current_month = now().month
+    month_name = now().strftime('%B')  
+
+    def get_week_of_month(date):
+        first_day = date.replace(day=1)
+        adjusted_dom = date.day + first_day.weekday()
+        return (adjusted_dom - 1) // 7 + 1
+
+    brs_per_week = (
+        BRSExcel.objects
+        .filter(tgl_up__year=current_year, tgl_up__month=current_month)
+        .values_list('tgl_up', flat=True)
+    )
+
+    week_counts = {1: 0, 2: 0, 3: 0, 4: 0}
+    for date in brs_per_week:
+        week_num = get_week_of_month(date)
+        if 1 <= week_num <= 4:
+            week_counts[week_num] += 1
+
+    chart_categories = ["Week 1", "Week 2", "Week 3", "Week 4"]
+    chart_data = [week_counts[1], week_counts[2], week_counts[3], week_counts[4]]
+
+    # Grafik BRS User
+    user_uploads = (
+        BRSExcel.objects.values('id__username')
+        .annotate(total_uploads=Count('id'))
+        .order_by('-total_uploads')  
+    )
+    
+    usernames = [user['id__username'] for user in user_uploads]
+    upload_counts = [user['total_uploads'] for user in user_uploads]
+
+    context = {
+        'total_users': total_users,
+        'user_brs_count': user_brs_count,
+        'total_brs_uploaded': total_brs_uploaded,
+        'usernames': json.dumps(usernames),
+        'upload_counts': json.dumps(upload_counts),
+        'month_name': month_name,
+        'chart_categories': json.dumps(chart_categories),
+        'chart_data': json.dumps(chart_data),
+    }
+    return render(request, 'admin/dashboard-admin.html', context)
 
 @login_required
 def log_activity(request):
-    return render(request, 'admin/log-activity.html')
+    users = CustomUser.objects.filter(brsexcel__isnull=False).distinct()
+
+    log_data = {}
+    
+    for user in users:
+        user_logs = BRSExcel.objects.filter(id=user.id).order_by('-tgl_up')
+        log_data[user.username] = user_logs  # Simpan dalam dict
+    return render(request, 'admin/log-activity.html', {'log_data': log_data})
 
 User = get_user_model()
 
