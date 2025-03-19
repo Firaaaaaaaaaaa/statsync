@@ -27,9 +27,14 @@ settings.py
 Thumbs.db
 
 # file JSON di folder pdf_processing
-statsync/apps/myuser/pdf_processing/brs-sheets-api.json
-statsync/apps/myuser/pdf_processing/client_secrets.json
+apps/myuser/pdf_processing/brs-sheets-api.json
+apps/myuser/pdf_processing/client_secrets.json
 
 # drive_api.py
-statsync/apps/myuser/pdf_processing/drive_api.py
+apps/myuser/pdf_processing/drive_api.py
+
+static/uploads/
+
+node_modules/
+
 
