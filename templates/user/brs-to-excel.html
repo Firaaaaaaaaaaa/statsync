@@ -43,7 +43,10 @@
             <input type="file" id="fileInput" name="pdf_file" class="form-control mt-2" accept="application/pdf" required/>
 
             <!-- Input Tanggal -->
-            <input type="date" id="dateInput" name="tgl_terbit" class="form-control mt-2" required/>
+            <div class="d-flex align-items-center mt-2">
+              <label for="dateInput" class="me-3" style="white-space: nowrap;">Publication Date</label>
+              <input type="date" id="dateInput" name="tgl_terbit" class="form-control" required/>
+            </div>
 
             <!-- Notifikasi Error -->
             <div id="error-message" class="text-danger mt-2" style="display: none">Tanggal harus diisi!</div>
