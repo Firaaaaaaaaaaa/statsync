@@ -9,46 +9,54 @@ from .models import BRSExcel, BRSsheet
 from apps.myuser.pdf_processing.extract import pdf_to_excel, upload_to_drive, extract_brs_title
 from apps.myuser.pdf_processing.brs_sheets import get_sheets_gid
 from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth import logout, authenticate, login, update_session_auth_hash
+from django.views.decorators.cache import cache_control
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from urllib.parse import urlparse, parse_qs
-from django.db.models import Count
+from django.utils.timezone import now
 import os
 import uuid
 import json
 from .forms import BRSExcelForm
-from django.contrib.auth import logout, authenticate, login, update_session_auth_hash
-from django.views.decorators.cache import cache_control
-from django.contrib.auth import get_user_model
 
 
 @login_required
 def dashboard_user(request):
     user_brs_count = BRSExcel.objects.filter(id=request.user).count()
-
     total_brs_count = BRSExcel.objects.count()
 
-    brs_per_month = (
+    current_year = now().year
+    current_month = now().month
+    month_name = now().strftime('%B')
+
+    def get_week_of_month(date):
+        first_day = date.replace(day=1)
+        adjusted_dom = date.day + first_day.weekday()
+        return (adjusted_dom - 1) // 7 + 1
+
+    brs_per_week = (
         BRSExcel.objects
-        .values('tgl_up__year', 'tgl_up__month')
-        .annotate(total=Count('id_brsexcel'))
-        .order_by('tgl_up__year', 'tgl_up__month')
+        .filter(tgl_up__year=current_year, tgl_up__month=current_month)
+        .values_list('tgl_up', flat=True)
     )
 
-    chart_categories = []
-    chart_data = []
+    week_counts = {1: 0, 2: 0, 3: 0, 4: 0}
+    for date in brs_per_week:
+        week_num = get_week_of_month(date)
+        if 1 <= week_num <= 4:
+            week_counts[week_num] += 1
 
-    for brs in brs_per_month:
-        month_year = f"{brs['tgl_up__year']}-{brs['tgl_up__month']:02d}"
-        chart_categories.append(month_year)
-        chart_data.append(brs['total'])
+    chart_categories = ["Week 1", "Week 2", "Week 3", "Week 4"]
+    chart_data = [week_counts[1], week_counts[2], week_counts[3], week_counts[4]]
 
     context = {
         'user_brs_count': user_brs_count,
         'total_brs_count': total_brs_count,
+        'month_name': month_name,
         'chart_categories': json.dumps(chart_categories),
-        'chart_data': json.dumps(chart_data), 
+        'chart_data': json.dumps(chart_data),
     }
-
     return render(request, 'user/dashboard-user.html', context)
 
 

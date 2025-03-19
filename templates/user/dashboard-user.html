@@ -52,62 +52,39 @@
         </div>
         <!-- End All BRS Uploaded -->
 
-        <!-- Reports -->
-        <div class="container fade-in">
-          <div class="row">
-            <!-- Report Chart Penuh -->
-            <div class="col-12">
-              <div class="card">
-                <div class="filter"></div>
-                <div class="card-body">
-                  <h5 class="card-title text-center">Monthly BRS</h5>
-                  <div id="reportsChartLeft"></div>
-                </div>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            console.log("Chart script loaded");
+            const chartCategories = JSON.parse('{{ chart_categories|escapejs }}');
+            const chartData = JSON.parse('{{ chart_data|escapejs }}');
+            
+            console.log("Categories:", chartCategories);
+            console.log("Data:", chartData);
+            
+            const options = {
+              series: [{ name: "Total BRS", data: chartData }],
+              chart: { height: 350, type: "bar", toolbar: { show: false } },
+              colors: ["#4154f1"],
+              dataLabels: { enabled: false },
+              xaxis: { categories: chartCategories },
+              yaxis: { title: { text: "Total BRS" } },
+            };
+            new ApexCharts(document.querySelector("#weeklyChart"), options).render();
+          });
+        </script>       
+          
+          <!-- Grafik Mingguan --> 
+          <div class="col-12">
+            <div class="card"> 
+              <div class="card-body"> 
+                <h5 class="card-title text-center">BRS Uploaded - {{ month_name }}</h5> 
+                <div id="weeklyChart"></div>
               </div>
             </div>
           </div>
         </div>
-
-        <script>
-          document.addEventListener("DOMContentLoaded", () => {
-            const options = {
-              series: [
-                { name: "Sales", data: [31, 40, 28, 51, 42, 82, 56] },
-                { name: "Revenue", data: [11, 32, 45, 32, 34, 52, 41] },
-                { name: "Customers", data: [15, 11, 32, 18, 9, 24, 11] },
-              ],
-              chart: {
-                height: 350,
-                type: "area",
-                toolbar: { show: false },
-              },
-              markers: { size: 4 },
-              colors: ["#4154f1", "#2eca6a", "#ff771d"],
-              fill: {
-                type: "gradient",
-                gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.4, stops: [0, 90, 100] },
-              },
-              dataLabels: { enabled: false },
-              stroke: { curve: "smooth", width: 2 },
-              xaxis: {
-                type: "datetime",
-                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"],
-              },
-              tooltip: {
-                x: { format: "dd/MM/yy HH:mm" },
-              },
-            };
-
-            // Render Chart Kiri
-            new ApexCharts(document.querySelector("#reportsChartLeft"), options).render();
-
-            // Render Chart Kanan
-            new ApexCharts(document.querySelector("#reportsChartRight"), options).render();
-          });
-        </script>
       </div>
+      <!-- End Left side columns -->
     </div>
-    <!-- End Left side columns -->
-  </div>
-</section>
+  </section>
 {% endblock %}
