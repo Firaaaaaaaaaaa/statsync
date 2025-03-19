@@ -37,10 +37,20 @@
           </li>
 
           <li>
-            <a class="dropdown-item d-flex align-items-center" href="{% url 'logout' %}">
+            <a class="dropdown-item d-flex align-items-center" href="{% url 'logout-user' %}">
               <i class="bi bi-box-arrow-right"></i>
               <span>Log Out</span>
             </a>
+            <script>
+              (function () {
+                if (window.history.replaceState) {
+                  window.history.replaceState(null, null, window.location.href);
+                }
+                window.onpopstate = function () {
+                  window.location.href = "{% url 'login' %}";
+                };
+              })();
+            </script>
           </li>
         </ul>
         <!-- End Profile Dropdown Items -->
