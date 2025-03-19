@@ -18,7 +18,46 @@ import os
 from .forms import BRSExcelForm
 import uuid
 import json
+from .forms import BRSExcelForm
 from django.core.cache import cache
+
+@login_required
+def dashboard_user(request):
+    user_brs_count = BRSExcel.objects.filter(id=request.user).count()
+    total_brs_count = BRSExcel.objects.count()
+
+    current_year = now().year
+    current_month = now().month
+    month_name = now().strftime('%B')
+
+    def get_week_of_month(date):
+        first_day = date.replace(day=1)
+        adjusted_dom = date.day + first_day.weekday()
+        return (adjusted_dom - 1) // 7 + 1
+
+    brs_per_week = (
+        BRSExcel.objects
+        .filter(tgl_up__year=current_year, tgl_up__month=current_month)
+        .values_list('tgl_up', flat=True)
+    )
+
+    week_counts = {1: 0, 2: 0, 3: 0, 4: 0}
+    for date in brs_per_week:
+        week_num = get_week_of_month(date)
+        if 1 <= week_num <= 4:
+            week_counts[week_num] += 1
+
+    chart_categories = ["Week 1", "Week 2", "Week 3", "Week 4"]
+    chart_data = [week_counts[1], week_counts[2], week_counts[3], week_counts[4]]
+
+    context = {
+        'user_brs_count': user_brs_count,
+        'total_brs_count': total_brs_count,
+        'month_name': month_name,
+        'chart_categories': json.dumps(chart_categories),
+        'chart_data': json.dumps(chart_data),
+    }
+    return render(request, 'user/dashboard-user.html', context)
 
 
 def extract_file_id(url):
