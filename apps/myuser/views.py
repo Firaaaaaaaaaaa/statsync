@@ -141,11 +141,21 @@ def rekapitulasi(request):
 @login_required
 def rekapitulasi_keseluruhan(request):
     brs_data = BRSExcel.objects.all().order_by('-tgl_terbit')  
-    return render(request, 'user/rekapitulasi-keseluruhan.html', {"brs_data": brs_data})
+    
+    years = BRSExcel.objects.dates('tgl_terbit', 'year', order='DESC')
+    years_list = [year.year for year in years]  
+
+    return render(request, 'user/rekapitulasi-keseluruhan.html', {
+        "brs_data": brs_data,
+        "years": years_list  
+    })
 
 @login_required
 def rekapitulasi_pribadi(request):
     brs_data = BRSExcel.objects.filter(id=request.user)
+
+    years = BRSExcel.objects.filter(id=request.user).dates('tgl_terbit', 'year', order='DESC')
+    years_list = [year.year for year in years] 
 
     if request.method == "POST" and "edit_id" in request.POST:
         brs = get_object_or_404(BRSExcel, id_brsexcel=request.POST["edit_id"])
@@ -155,7 +165,10 @@ def rekapitulasi_pribadi(request):
             return JsonResponse({"status": "success"})  
         return JsonResponse({"status": "error", "errors": form.errors})
 
-    return render(request, "user/rekapitulasi-pribadi.html", {"brs_data": brs_data})
+    return render(request, "user/rekapitulasi-pribadi.html", {
+        "brs_data": brs_data,
+        "years": years_list
+    })
 
 @login_required
 def profile_user(request):
