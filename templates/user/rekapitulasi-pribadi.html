@@ -130,33 +130,45 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const editButtons = document.querySelectorAll(".edit-btn");
+    const editForm = document.getElementById("editForm");
+    const modalElement = document.getElementById("editModal");
+    const modal = new bootstrap.Modal(modalElement);
 
-    editButtons.forEach(btn => {
-      btn.addEventListener("click", function () {
+    editButtons.forEach((btn) => {
+      btn.addEventListener("click", function (event) {
+        event.preventDefault();
         document.getElementById("edit_id").value = this.dataset.id;
         document.getElementById("edit_title").value = this.dataset.title;
         document.getElementById("edit_date").value = this.dataset.date;
-        new bootstrap.Modal(document.getElementById("editModal")).show();
+        modal.show();
       });
     });
 
-    document.getElementById("editForm").addEventListener("submit", function (event) {
-      event.preventDefault();
+    editForm.addEventListener(
+      "submit",
+      function (event) {
+        event.preventDefault();
+        const formData = new FormData(editForm);
 
-      const formData = new FormData(this);
-      fetch("", {
-        method: "POST",
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === "success") {
-          location.reload();  // Reload halaman setelah sukses edit
-        } else {
-          alert("Edit gagal: " + JSON.stringify(data.errors));
-        }
-      });
-    });
+        fetch("", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              location.reload();
+            } else {
+              alert("Edit gagal: " + JSON.stringify(data.errors));
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      },
+      { once: true }
+    );
   });
 </script>
 
