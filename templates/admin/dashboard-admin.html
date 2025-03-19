@@ -44,7 +44,7 @@
                   <i class="bi bi-cloud-arrow-up"></i>
                 </div>
                 <div class="ps-3">
-                  <h6 class="fs-1 fw-bold">80</h6>
+                  <h6 class="fs-1 fw-bold">{{ total_brs_uploaded }}</h6>
                 </div>
               </div>
             </div>
@@ -59,8 +59,8 @@
             <div class="col-md-6">
               <div class="card" style="height: 100%">
                 <div class="card-body">
-                  <h5 class="card-title text-center" style="color: black">Mounthly BRS</h5>
-                  <div id="reportsChartLeft"></div>
+                  <h5 class="card-title text-center" style="color: black">Mounthly BRS {{ month_name }}</h5>
+                  <div id="weeklyChart"></div>
                 </div>
               </div>
             </div>
@@ -69,46 +69,47 @@
             <div class="col-md-6">
               <div class="card" style="height: 100%">
                 <div class="card-body">
-                  <h5 class="card-title text-center" style="color: black">BRS Theme</h5>
-                  <div id="reportsChartRight"></div>
+                  <h5 class="card-title text-center" style="color: black">BRS User</h5>
+                  <div id="userUploadsChart"></div>
                 </div>
               </div>
             </div>
 
             <script>
               document.addEventListener("DOMContentLoaded", () => {
-                const options = {
-                  series: [{ name: "Sales", data: [120, 200, 150, 80, 70, 110, 130] }],
-                  chart: {
-                    height: 350,
-                    type: "bar",
-                    toolbar: { show: false },
-                    animations: {
-                      enabled: true,
-                      easing: "easeout",
-                      speed: 1500,
-                      animateGradually: {
-                        enabled: true,
-                        delay: 800, // Animasi berurutan dari kiri ke kanan
-                      },
-                      dynamicAnimation: {
-                        enabled: true,
-                        speed: 1500,
+                try {
+                  const usernames = JSON.parse('{{ usernames|escapejs }}');
+                  const uploadCounts = JSON.parse('{{ upload_counts|escapejs }}');
+            
+                  console.log("Usernames:", usernames);
+                  console.log("Upload Counts:", uploadCounts);
+            
+                  const options = {
+                    series: [{ name: "Total Uploads", data: uploadCounts }],
+                    chart: {
+                      type: "bar",
+                      height: 400,
+                      toolbar: { show: false },
+                    },
+                    colors: ["#36A2EB"],
+                    dataLabels: { enabled: false },
+                    xaxis: {
+                      categories: usernames,
+                      labels: {
+                        rotate: -45,
+                        style: {
+                          fontSize: "12px",
+                        },
                       },
                     },
-                  },
-                  colors: ["rgba(54, 162, 235, 0.6)"],
-                  dataLabels: { enabled: false },
-                  xaxis: {
-                    categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-                  },
-                  tooltip: {
-                    x: { formatter: (val) => val },
-                  },
-                };
-
-                // Render Chart Kanan
-                new ApexCharts(document.querySelector("#reportsChartRight"), options).render();
+                    yaxis: { title: { text: "Jumlah BRS Diunggah" } },
+                    tooltip: { x: { formatter: (val) => val } },
+                  };
+            
+                  new ApexCharts(document.querySelector("#userUploadsChart"), options).render();
+                } catch (error) {
+                  console.error("Error parsing JSON:", error);
+                }
               });
             </script>
           </div>
@@ -116,36 +117,19 @@
 
         <script>
           document.addEventListener("DOMContentLoaded", () => {
+            const chartCategories = JSON.parse('{{ chart_categories|escapejs }}');
+            const chartData = JSON.parse('{{ chart_data|escapejs }}');
+            
             const options = {
-              series: [
-                { name: "Sales", data: [31, 40, 28, 51, 42, 82, 56] },
-                { name: "Revenue", data: [11, 32, 45, 32, 34, 52, 41] },
-                { name: "Customers", data: [15, 11, 32, 18, 9, 24, 11] },
-              ],
-              chart: {
-                height: 350,
-                type: "area",
-                toolbar: { show: false },
-              },
-              markers: { size: 4 },
-              colors: ["#4154f1", "#2eca6a", "#ff771d"],
-              fill: {
-                type: "gradient",
-                gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.4, stops: [0, 90, 100] },
-              },
+              series: [{ name: "Total BRS", data: chartData }],
+              chart: { height: 350, type: "bar", toolbar: { show: false } },
+              colors: ["#4154f1"],
               dataLabels: { enabled: false },
-              stroke: { curve: "smooth", width: 2 },
-              xaxis: {
-                type: "datetime",
-                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"],
-              },
-              tooltip: {
-                x: { format: "dd/MM/yy HH:mm" },
-              },
+              xaxis: { categories: chartCategories },
+              yaxis: { title: { text: "Total BRS" } },
             };
-
-            // Render Chart Kiri
-            new ApexCharts(document.querySelector("#reportsChartLeft"), options).render();
+        
+            new ApexCharts(document.querySelector("#weeklyChart"), options).render();
           });
         </script>
       </div>

@@ -12,11 +12,12 @@
 
 <section class="section log-activity">
   <div class="row">
+    {% for username, logs in log_data.items %}
     <!-- Left Side Card -->
     <div class="col-lg-6 fade-in">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title text-center fw-bold">Farhat Falfalla</h4>
+          <h4 class="card-title text-center fw-bold">{{ username }}</h4>
           <!-- Nama User -->
 
           <!-- Table with Scroll -->
@@ -29,26 +30,16 @@
                 </tr>
               </thead>
               <tbody>
+                {% for log in logs %}
                 <tr>
-                  <td>Title 1</td>
-                  <td class="date-cell">06 Mar 2025</td>
+                  <td>{{ log.judul_brs }}</td>
+                  <td class="date-cell">{{ log.tgl_up|date:"d M Y" }}</td>
                 </tr>
+                {% empty %}
                 <tr>
-                  <td>Title 2</td>
-                  <td class="date-cell">05 Mar 2025</td>
+                  <td colspan="2">No data available</td>
                 </tr>
-                <tr>
-                  <td>Title 3</td>
-                  <td class="date-cell">04 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title 4</td>
-                  <td class="date-cell">03 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title 5</td>
-                  <td class="date-cell">02 Mar 2025</td>
-                </tr>
+                {% endfor %}
                 <!-- Tambahkan data lain di sini -->
               </tbody>
             </table>
@@ -58,121 +49,13 @@
           <!-- Total Extracted Titles -->
           <div class="text-center mt-3">
             <h5 class="card-title">Total Extracted Titles</h5>
-            <h6 class="fs-1 fw-bold">5</h6>
+            <h6 class="fs-1 fw-bold">{{ logs|length }}</h6>
             <!-- Total Judul -->
           </div>
         </div>
       </div>
     </div>
+    {% endfor %}
     <!-- End Left Side Card -->
-
-    <!-- Right Side Card -->
-    <div class="col-lg-6 fade-in">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title text-center fw-bold">Shafira Khansa</h4>
-          <!-- Nama User -->
-
-          <!-- Table with Scroll -->
-          <div class="table-responsive" style="max-height: 250px; overflow-y: auto">
-            <table class="table table-bordered">
-              <thead class="table-light">
-                <tr>
-                  <th scope="col">Title</th>
-                  <th scope="col">Extraction Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Title A</td>
-                  <td class="date-cell">06 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title B</td>
-                  <td class="date-cell">05 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title C</td>
-                  <td class="date-cell">04 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title D</td>
-                  <td class="date-cell">03 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title E</td>
-                  <td class="date-cell">02 Mar 2025</td>
-                </tr>
-                <!-- Tambahkan data lain di sini -->
-              </tbody>
-            </table>
-          </div>
-          <!-- End Table -->
-
-          <!-- Total Extracted Titles -->
-          <div class="text-center mt-3">
-            <h5 class="card-title">Total Extracted Titles</h5>
-            <h6 class="fs-1 fw-bold">5</h6>
-            <!-- Total Judul -->
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- End Right Side Card -->
-
-    <!-- Right Side Card -->
-    <div class="col-lg-6 fade-in">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title text-center fw-bold">Zahra Nur</h4>
-          <!-- Nama User -->
-
-          <!-- Table with Scroll -->
-          <div class="table-responsive" style="max-height: 250px; overflow-y: auto">
-            <table class="table table-bordered">
-              <thead class="table-light">
-                <tr>
-                  <th scope="col">Title</th>
-                  <th scope="col">Extraction Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Title A</td>
-                  <td class="date-cell">06 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title B</td>
-                  <td class="date-cell">05 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title C</td>
-                  <td class="date-cell">04 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title D</td>
-                  <td class="date-cell">03 Mar 2025</td>
-                </tr>
-                <tr>
-                  <td>Title E</td>
-                  <td class="date-cell">02 Mar 2025</td>
-                </tr>
-                <!-- Tambahkan data lain di sini -->
-              </tbody>
-            </table>
-          </div>
-          <!-- End Table -->
-
-          <!-- Total Extracted Titles -->
-          <div class="text-center mt-3">
-            <h5 class="card-title">Total Extracted Titles</h5>
-            <h6 class="fs-1 fw-bold">5</h6>
-            <!-- Total Judul -->
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- End Right Side Card -->
-  </div>
 </section>
 {% endblock %}
