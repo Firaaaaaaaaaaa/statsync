@@ -16,6 +16,9 @@ import os
 import uuid
 import json
 from .forms import BRSExcelForm
+from django.contrib.auth import logout, authenticate, login, update_session_auth_hash
+from django.views.decorators.cache import cache_control
+from django.contrib.auth import get_user_model
 
 
 @login_required
@@ -221,3 +224,40 @@ def change_password(request):
         return redirect('profile-user') 
 
     return redirect('profile-user')
+
+User = get_user_model()
+
+@login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def dashboard_user(request):
+    user_brs_count = BRSExcel.objects.filter(id=request.user).count()
+    total_brs_count = BRSExcel.objects.count()
+
+    context = {
+        'user_brs_count': user_brs_count,
+        'total_brs_count': total_brs_count,
+    }
+    return render(request, 'user/dashboard-user.html', context)
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def custom_login_user(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard-user')  # Redirect ke dashboard user
+        else:
+            messages.error(request, "Username atau password salah!")
+            return redirect('login')  # Redirect kembali ke halaman login
+    
+    return render(request, 'login.html')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def logout_user(request):
+    logout(request)
+    request.session.flush()  # Bersihkan semua sesi
+    return redirect('login')  # Kembali ke halaman login
