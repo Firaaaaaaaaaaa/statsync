@@ -61,7 +61,7 @@
 </div>
 
 <!-- Tabel Hasil Ekstraksi -->
-<div class="container mt-4 fade-in">
+<div class="container mt-4 fade-in" id="previewTable" style="display: none;">
   <div class="card p-3">
     <div class="table-responsive">
       <table class="table table-hover">
@@ -80,7 +80,6 @@
             <td><a href="{{ sheet.file_sheet }}" target="_blank">Lihat Sheet</a></td>
           </tr>
           {% endfor %}
-          <!-- Data akan dimuat di sini oleh JavaScript -->
         </tbody>
       </table>
     </div>
@@ -175,42 +174,65 @@
 </script>
 
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let tablePreview = document.getElementById("previewTable");
+
+    if (sessionStorage.getItem("ekstraksiSukses") === "true") {
+        tablePreview.style.display = "block"; // Tampilkan tabel
+    }
+  });
+
   document.querySelector("#uploadForm").addEventListener("submit", function (event) {
     event.preventDefault();
-    
+      
     let formData = new FormData(this);
     let submitButton = this.querySelector("button[type='submit']");
-    submitButton.disabled = true; // Matikan tombol selama proses
-    submitButton.innerText = "Memproses...";
+    submitButton.disabled = true;
+    submitButton.innerText = "Memproses... 0%";
+
+    // Mulai polling progres setiap 500ms
+    let interval = setInterval(() => {
+        fetch("{% url 'get-progress' %}") // Pastikan URL sesuai dengan Django
+        .then(response => response.json())
+        .then(data => {
+            submitButton.innerText = `Memproses... ${data.progress}%`;
+            if (data.progress >= 100) {
+                clearInterval(interval);
+            }
+        })
+        .catch(error => console.error("Error fetching progress:", error));
+    }, 500);
 
     fetch("{% url 'brs-to-excel' %}", {
         method: "POST",
         body: formData
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.error || "Terjadi kesalahan saat mengunggah.");
-            });
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.error) {
-            alert(data.error);  // Tampilkan peringatan ke user
+            alert(data.error);
         } else {
-            window.location.reload();  // Reload jika sukses
+            sessionStorage.setItem("ekstraksiSukses", "true");
+            document.getElementById("previewTable").style.display = "block";
+
+            // Reset form setelah sukses
+            document.getElementById("uploadForm").reset();
         }
     })
     .catch(error => {
-        alert(error.message);
+        alert("Terjadi kesalahan saat mengunggah.");
         console.error("Error:", error);
     })
     .finally(() => {
+        clearInterval(interval);
         submitButton.disabled = false;
         submitButton.innerText = "Ekstrak File";
     });
 });
+
+  window.addEventListener("beforeunload", function () {
+      sessionStorage.removeItem("ekstraksiSukses");
+  });
 </script>
 
 <script>

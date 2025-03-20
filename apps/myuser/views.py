@@ -4,7 +4,6 @@ from apps.myauth.models import CustomUser
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from .forms import PDFUploadForm
-# from apps.myuser.models import BRSExcel, BRSsheet
 from apps.myuser.pdf_processing.extract import pdf_to_excel, upload_to_drive, extract_brs_title
 from apps.myuser.pdf_processing.brs_sheets import get_sheets_gid
 from django.shortcuts import redirect, get_object_or_404
@@ -19,8 +18,7 @@ import os
 from .forms import BRSExcelForm
 import uuid
 import json
-# import datetime
-
+from django.core.cache import cache
 
 
 def extract_file_id(url):
@@ -45,27 +43,37 @@ def brstoexcel(request):
 
             file_name = f"{uuid.uuid4().hex}.pdf"
             file_path = os.path.join("static/uploads", file_name)
+            
+            # Set progres awal ke 0%
+            cache.set(f"convert_progress_{request.user.id}", 0)
+            
             with open(file_path, "wb") as f:
                 for chunk in uploaded_file.chunks():
                     f.write(chunk)
+
+            cache.set(f"convert_progress_{request.user.id}", 20)  # Progres 20%
 
             extracted_title = extract_brs_title(file_path) or uploaded_file.name
 
             if BRSExcel.objects.filter(judul_brs=extracted_title).exists():
                 os.remove(file_path) 
+                cache.delete(f"convert_progress_{request.user.id}")  # Hapus progres jika gagal
                 return JsonResponse({"error": "BRS dengan judul ini sudah pernah diunggah."}, status=400)
+
+            cache.set(f"convert_progress_{request.user.id}", 40)  # Progres 40%
 
             excel_path, sheet_links = pdf_to_excel(file_path)
 
+            cache.set(f"convert_progress_{request.user.id}", 60)  # Progres 60%
+
             drive_url, drive_file_id = upload_to_drive(excel_path, return_id=True)
-            print(f"Drive URL: {drive_url}, Extracted File ID: {drive_file_id}") 
+
+            cache.set(f"convert_progress_{request.user.id}", 80)  # Progres 80%
 
             BRSsheet.objects.filter(id_brsexcel__id=request.user).delete()
 
-            judul_brs = extract_brs_title(file_path) or uploaded_file.name
-
             brs = BRSExcel.objects.create(
-                judul_brs=judul_brs,
+                judul_brs=extracted_title,
                 id_file=drive_file_id,
                 url_file=drive_url,
                 tgl_terbit=tgl_terbit,
@@ -88,7 +96,8 @@ def brstoexcel(request):
                     file_sheet=sheet_url
                 )
 
-            # return redirect('brs-to-excel')
+            cache.set(f"convert_progress_{request.user.id}", 100)  # Progres 100% (selesai)
+
             return JsonResponse({"success": True, "message": "File berhasil diekstrak!", "id_file": drive_file_id})
 
     else:
@@ -98,6 +107,13 @@ def brstoexcel(request):
     sheet_data = BRSsheet.objects.filter(id_brsexcel__id=request.user)
 
     return render(request, 'user/brs-to-excel.html', {'form': form, 'brs_data': brs_data, 'sheet_data': sheet_data})
+
+def get_progress(request):
+    """
+    View untuk mendapatkan progres konversi file PDF ke Excel.
+    """
+    progress = cache.get(f"convert_progress_{request.user.id}", 0)
+    return JsonResponse({"progress": progress})
 
 def get_sheets_gid_view(spreadsheet_id):
     """
