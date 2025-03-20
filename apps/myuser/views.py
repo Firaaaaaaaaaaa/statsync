@@ -20,7 +20,6 @@ import uuid
 import json
 from django.core.cache import cache
 
-
 def extract_file_id(url):
     """Ekstrak FILE_ID dari berbagai format URL Google Drive"""
     parsed_url = urlparse(url)
