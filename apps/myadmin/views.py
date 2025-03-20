@@ -18,12 +18,14 @@ from django.db.models import Count
 
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def manage_users(request):
     users = CustomUser.objects.select_related('id_role').all()  # Ambil data user beserta role-nya
     roles = Role.objects.all()  # Ambil daftar semua role
     return render(request, "admin/manage-users.html", {"users": users, "roles": roles})  # Kirim data roles ke template
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def change_user_role(request):
     if request.method == "POST":
         user_id = request.POST.get("user_id")
@@ -108,10 +110,12 @@ def log_activity(request):
 User = get_user_model()
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def profile_admin(request):
     return render(request, 'common/profile-admin.html')
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def profile_view(request):
     user = request.user  
 
@@ -142,6 +146,7 @@ def profile_view(request):
     return render(request, "common/profile-admin.html", {"user": user})
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def update_profile(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -160,6 +165,7 @@ def update_profile(request, user_id):
     return render(request, "common/profile-admin.html", {"user": user})
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def change_password(request):
     if request.method == 'POST':
         current_password = request.POST.get('password')
