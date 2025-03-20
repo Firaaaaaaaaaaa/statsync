@@ -9,6 +9,8 @@
   </nav>
 </div>
 <!-- End Page Title -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 
 <section class="section dashboard">
   <div class="row">
@@ -51,40 +53,67 @@
           </div>
         </div>
         <!-- End All BRS Uploaded -->
-
-        <script>
-          document.addEventListener("DOMContentLoaded", function () {
-            console.log("Chart script loaded");
-            const chartCategories = JSON.parse('{{ chart_categories|escapejs }}');
-            const chartData = JSON.parse('{{ chart_data|escapejs }}');
-            
-            console.log("Categories:", chartCategories);
-            console.log("Data:", chartData);
-            
-            const options = {
-              series: [{ name: "Total BRS", data: chartData }],
-              chart: { height: 350, type: "bar", toolbar: { show: false } },
-              colors: ["#4154f1"],
-              dataLabels: { enabled: false },
-              xaxis: { categories: chartCategories },
-              yaxis: { title: { text: "Total BRS" } },
-            };
-            new ApexCharts(document.querySelector("#weeklyChart"), options).render();
-          });
-        </script>       
-          
-          <!-- Grafik Mingguan --> 
-          <div class="col-12">
-            <div class="card"> 
-              <div class="card-body"> 
-                <h5 class="card-title text-center">BRS Uploaded - {{ month_name }}</h5> 
-                <div id="weeklyChart"></div>
+        
+        <!-- Reports -->
+        <div class="container fade-in">
+          <div class="row">
+            <!-- Report Chart Kiri -->
+            <div class="col 12">
+              <div class="card" style="height: 100%">
+                <div class="card-body">
+                  <h5 class="card-title text-center" style="color: black">Mounthly BRS {{ month_name }}</h5>
+                  <div id="weeklyChart" style="width: 100%; height: 100%;"></div>
+                </div>
               </div>
             </div>
+            
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <script> 
+              document.addEventListener("DOMContentLoaded", () => {
+              const chartCategories = JSON.parse('{{ chart_categories|escapejs }}');
+              const chartData = JSON.parse('{{ chart_data|escapejs }}');
+        
+              var options = {
+                series: [{
+                  name: "Total BRS",
+                  data: chartData
+                }],
+                chart: {
+                  type: "line",
+                  height: "100%",
+                  width: "100%"
+                },
+                xaxis: {
+                  categories: chartCategories
+                },
+                yaxis: {
+                  title: {
+                    text: "Total BRS"
+                  }
+                },
+                stroke: {
+                  curve: "smooth"
+                },
+                markers: {
+                  size: 4,
+                  colors: ["#36A2EB"],
+                  strokeWidth: 2
+                }
+              };
+              let chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
+              chart.render();
+
+              // Pastikan grafik tetap responsif
+              window.addEventListener("resize", () => {
+                chart.render();
+              });
+            });
+            </script>        
           </div>
         </div>
-      </div>
       <!-- End Left side columns -->
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 {% endblock %}
