@@ -1,11 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from apps.myauth.models import CustomUser
-import json
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from .forms import PDFUploadForm
-from .models import BRSExcel, BRSsheet
+# from apps.myuser.models import BRSExcel, BRSsheet
 from apps.myuser.pdf_processing.extract import pdf_to_excel, upload_to_drive, extract_brs_title
 from apps.myuser.pdf_processing.brs_sheets import get_sheets_gid
 from django.shortcuts import redirect, get_object_or_404
@@ -14,50 +13,14 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from urllib.parse import urlparse, parse_qs
+from apps.myuser.models import BRSExcel, BRSsheet
 from django.utils.timezone import now
 import os
+from .forms import BRSExcelForm
 import uuid
 import json
-from .forms import BRSExcelForm
+# import datetime
 
-
-@login_required
-def dashboard_user(request):
-    user_brs_count = BRSExcel.objects.filter(id=request.user).count()
-    total_brs_count = BRSExcel.objects.count()
-
-    current_year = now().year
-    current_month = now().month
-    month_name = now().strftime('%B')
-
-    def get_week_of_month(date):
-        first_day = date.replace(day=1)
-        adjusted_dom = date.day + first_day.weekday()
-        return (adjusted_dom - 1) // 7 + 1
-
-    brs_per_week = (
-        BRSExcel.objects
-        .filter(tgl_up__year=current_year, tgl_up__month=current_month)
-        .values_list('tgl_up', flat=True)
-    )
-
-    week_counts = {1: 0, 2: 0, 3: 0, 4: 0}
-    for date in brs_per_week:
-        week_num = get_week_of_month(date)
-        if 1 <= week_num <= 4:
-            week_counts[week_num] += 1
-
-    chart_categories = ["Week 1", "Week 2", "Week 3", "Week 4"]
-    chart_data = [week_counts[1], week_counts[2], week_counts[3], week_counts[4]]
-
-    context = {
-        'user_brs_count': user_brs_count,
-        'total_brs_count': total_brs_count,
-        'month_name': month_name,
-        'chart_categories': json.dumps(chart_categories),
-        'chart_data': json.dumps(chart_data),
-    }
-    return render(request, 'user/dashboard-user.html', context)
 
 
 def extract_file_id(url):
@@ -251,13 +214,58 @@ User = get_user_model()
 @login_required
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard_user(request):
+    print("\nDEBUG: Fungsi dashboard_user() dipanggil\n")
     user_brs_count = BRSExcel.objects.filter(id=request.user).count()
     total_brs_count = BRSExcel.objects.count()
+    print("DEBUG: user & total:", user_brs_count, total_brs_count)
+
+    current_year = now().year
+    current_month = now().month
+    month_name = now().strftime('%B')  
+
+    print("DEBUG: Bulan & Tahun Saat Ini:", month_name, current_year)
+
+    def get_week_of_month(date):
+        first_day = date.replace(day=1)
+        adjusted_dom = date.day + first_day.weekday()
+        return (adjusted_dom - 1) // 7 + 1
+
+    brs_per_week = (
+        BRSExcel.objects
+        .filter(tgl_up__year=current_year, tgl_up__month=current_month)
+        .values_list('tgl_up', flat=True)
+    )
+
+    week_counts = {1: 0, 2: 0, 3: 0, 4: 0}
+    for date in brs_per_week:
+        week_num = get_week_of_month(date)
+        if 1 <= week_num <= 4:
+            week_counts[week_num] += 1
+
+    chart_categories = ["Week 1", "Week 2", "Week 3", "Week 4"]
+    chart_data = [week_counts[1], week_counts[2], week_counts[3], week_counts[4]]
+
+    # DEBUG: Print data ke console Django
+    print("Chart Categories:", chart_categories)
+    print("Chart Data:", chart_data)
+
+    # === DEBUG: Print ke Terminal ===
+    print("\n=== DEBUG DATA ===")
+    print("User BRS Count:", user_brs_count)
+    print("Total BRS Count:", total_brs_count)
+    print("Month Name:", month_name)
+    print("Chart Categories:", chart_categories)
+    print("Chart Data:", chart_data)
+    print("===================\n")
 
     context = {
         'user_brs_count': user_brs_count,
         'total_brs_count': total_brs_count,
+        'month_name': month_name,
+        'chart_categories': json.dumps(chart_categories),
+        'chart_data': json.dumps(chart_data),
     }
+    print("DEBUG: Context yang dikirim ke template:", context)
     return render(request, 'user/dashboard-user.html', context)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
