@@ -4,7 +4,6 @@ from apps.myauth.models import CustomUser
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from .forms import PDFUploadForm
-# from apps.myuser.models import BRSExcel, BRSsheet
 from apps.myuser.pdf_processing.extract import pdf_to_excel, upload_to_drive, extract_brs_title
 from apps.myuser.pdf_processing.brs_sheets import get_sheets_gid
 from django.shortcuts import redirect, get_object_or_404
@@ -19,13 +18,8 @@ import os
 from .forms import BRSExcelForm
 import uuid
 import json
-<<<<<<< Updated upstream
-# import datetime
-
-
-=======
 from django.core.cache import cache
->>>>>>> Stashed changes
+
 
 def extract_file_id(url):
     """Ekstrak FILE_ID dari berbagai format URL Google Drive"""
