@@ -8,3 +8,10 @@
   <!-- End Footer -->
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  
+<script>
+  document.querySelector('.back-to-top').addEventListener('click', function(event) {
+  event.preventDefault();
+  window.scrollTo({ top: 0, behavior: 'smooth' }); 
+});
+</script>
