@@ -34,6 +34,7 @@ def extract_file_id(url):
     return None 
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def brstoexcel(request):
     if request.method == "POST":
         form = PDFUploadForm(request.POST, request.FILES)
@@ -122,10 +123,12 @@ def get_sheets_gid_view(spreadsheet_id):
     return get_sheets_gid(spreadsheet_id)
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def rekapitulasi(request):
     return render(request, 'user/rekapitulasi.html')
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def rekapitulasi_keseluruhan(request):
     brs_data = BRSExcel.objects.all().order_by('-tgl_terbit')  
     
@@ -138,6 +141,7 @@ def rekapitulasi_keseluruhan(request):
     })
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def rekapitulasi_pribadi(request):
     brs_data = BRSExcel.objects.filter(id=request.user)
 
@@ -158,10 +162,12 @@ def rekapitulasi_pribadi(request):
     })
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def profile_user(request):
     return render(request, 'common/profile-user.html')
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def profile_view(request):
     user = request.user  
 
@@ -191,6 +197,7 @@ def profile_view(request):
     return render(request, "common/profile-user.html", {"user": user})
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def update_profile(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -209,6 +216,7 @@ def update_profile(request, user_id):
     return render(request, "common/profile-user.html", {"user": user})
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def change_password(request):
     if request.method == 'POST':
         current_password = request.POST.get('password')
