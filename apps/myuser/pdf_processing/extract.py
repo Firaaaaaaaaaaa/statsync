@@ -64,7 +64,7 @@ def pdf_to_excel(pdf_path):
                             if not df.empty:  # Pastikan DataFrame tidak kosong 
                                 sheet_name = table_names[table_idx] if table_idx < len(table_names) else None 
                                 if sheet_name:  # Pastikan ada nama sheet yang valid 
-                                    sheet_name = sheet_name[:31]  # Batasan nama sheet di Excel 
+                                    sheet_name = sheet_name[:250]  # Batasan nama sheet di Excel 
                                     df.to_excel(writer, sheet_name=sheet_name, index=False) 
                                     sheet_links.append({"judul_sheet": sheet_name, "gid": None})
 
