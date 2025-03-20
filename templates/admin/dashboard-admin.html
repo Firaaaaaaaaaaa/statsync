@@ -102,7 +102,7 @@
                         },
                       },
                     },
-                    yaxis: { title: { text: "Jumlah BRS Diunggah" } },
+                    yaxis: { title: { text: "Total BRS Uploaded" } },
                     tooltip: { x: { formatter: (val) => val } },
                   };
             
@@ -115,23 +115,47 @@
           </div>
         </div>
 
-        <script>
-          document.addEventListener("DOMContentLoaded", () => {
-            const chartCategories = JSON.parse('{{ chart_categories|escapejs }}');
-            const chartData = JSON.parse('{{ chart_data|escapejs }}');
-            
-            const options = {
-              series: [{ name: "Total BRS", data: chartData }],
-              chart: { height: 350, type: "bar", toolbar: { show: false } },
-              colors: ["#4154f1"],
-              dataLabels: { enabled: false },
-              xaxis: { categories: chartCategories },
-              yaxis: { title: { text: "Total BRS" } },
-            };
+        <script> 
+              document.addEventListener("DOMContentLoaded", () => {
+              const chartCategories = JSON.parse('{{ chart_categories|escapejs }}');
+              const chartData = JSON.parse('{{ chart_data|escapejs }}');
         
-            new ApexCharts(document.querySelector("#weeklyChart"), options).render();
-          });
-        </script>
+              var options = {
+                series: [{
+                  name: "Total BRS",
+                  data: chartData
+                }],
+                chart: {
+                  type: "line",
+                  height: "400",
+                  width: "100%"
+                },
+                xaxis: {
+                  categories: chartCategories
+                },
+                yaxis: {
+                  title: {
+                    text: "Total BRS"
+                  }
+                },
+                stroke: {
+                  curve: "smooth"
+                },
+                markers: {
+                  size: 4,
+                  colors: ["#36A2EB"],
+                  strokeWidth: 2
+                }
+              };
+              let chart = new ApexCharts(document.querySelector("#weeklyChart"), options);
+              chart.render();
+
+              // Pastikan grafik tetap responsif
+              window.addEventListener("resize", () => {
+                chart.render();
+              });
+            });
+            </script> 
       </div>
     </div>
     <!-- End Left side columns -->
