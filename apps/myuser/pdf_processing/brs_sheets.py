@@ -1,5 +1,6 @@
 import os
 import json
+from xmlrpc import client
 import gspread
 import requests
 
@@ -24,32 +25,55 @@ SCOPES = [
 # OAUTH HANDLER
 # =======================================================================
 
-def get_oauth_credentials():
-    """
-    Membuat credentials OAuth dari refresh_token + client_id + client_secret
-    yang disimpan di client_secrets.json (tidak memakai InstalledAppFlow).
-    """
+# def get_oauth_credentials():
+#     """
+#     Membuat credentials OAuth dari refresh_token + client_id + client_secret
+#     yang disimpan di client_secrets.json (tidak memakai InstalledAppFlow).
+#     """
 
+#     with open(CLIENT_SECRET_FILE, "r") as f:
+#         data = json.load(f)
+
+#     web = data["web"]
+
+#     refresh_token = web.get("refresh_token")
+#     if not refresh_token:
+#         raise ValueError("refresh_token tidak ditemukan di client_secrets.json")
+
+#     creds = Credentials(
+#         token=web.get("access_token"),      # boleh None, akan auto refresh
+#         refresh_token=refresh_token,
+#         token_uri=web["token_uri"],
+#         client_id=web["client_id"],
+#         client_secret=web["client_secret"],
+#         scopes=SCOPES,
+#     )
+
+#     # Refresh untuk memastikan access token valid
+#     creds.refresh(Request())
+
+#     return creds
+
+def get_oauth_credentials():
     with open(CLIENT_SECRET_FILE, "r") as f:
         data = json.load(f)
 
     web = data["web"]
 
-    refresh_token = web.get("refresh_token")
-    if not refresh_token:
-        raise ValueError("refresh_token tidak ditemukan di client_secrets.json")
-
     creds = Credentials(
-        token=web.get("access_token"),      # boleh None, akan auto refresh
-        refresh_token=refresh_token,
+        token=web.get("access_token"),
+        refresh_token=web.get("refresh_token"),
         token_uri=web["token_uri"],
         client_id=web["client_id"],
         client_secret=web["client_secret"],
         scopes=SCOPES,
     )
 
-    # Refresh untuk memastikan access token valid
-    creds.refresh(Request())
+    if creds.expired and creds.refresh_token:
+        try:
+            creds.refresh(Request())
+        except Exception as e:
+            raise RuntimeError("Google OAuth refresh gagal") from e
 
     return creds
 
@@ -64,16 +88,29 @@ def get_access_token():
 # GOOGLE SHEETS & DRIVE API
 # =======================================================================
 
-# OAuth credentials untuk gspread & Drive API
-creds = get_oauth_credentials()
+# # OAuth credentials untuk gspread & Drive API
+# creds = get_oauth_credentials()
 
-# Gspread client
-client = gspread.authorize(creds)
+# # Gspread client
+# client = gspread.authorize(creds)
+
+# def authenticate_drive():
+#     """
+#     Mengautentikasi Google Drive API.
+#     """
+#     return build('drive', 'v3', credentials=creds)
+
+def get_creds():
+    return get_oauth_credentials()
+
+
+def get_gspread_client():
+    creds = get_creds()
+    return gspread.authorize(creds)
+
 
 def authenticate_drive():
-    """
-    Mengautentikasi Google Drive API.
-    """
+    creds = get_creds()
     return build('drive', 'v3', credentials=creds)
 
 def get_sheets_gid(drive_file_id):
@@ -111,7 +148,10 @@ def get_sheets_preview(drive_file_id):
     Mengambil daftar sheet dan link pratinjau dari Google Sheets.
     """
     try:
+        client = get_gspread_client()
         spreadsheet = client.open_by_key(drive_file_id)
+
+        # spreadsheet = client.open_by_key(drive_file_id)
         sheets = spreadsheet.worksheets()
 
         preview_links = [{"name": sheet.title, "link": f"https://docs.google.com/spreadsheets/d/{drive_file_id}/edit?gid={sheet.id}#gid={sheet.id}"} for sheet in sheets]
