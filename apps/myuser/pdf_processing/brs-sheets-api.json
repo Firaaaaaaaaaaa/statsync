@@ -7,7 +7,7 @@
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_secret": "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",
     "redirect_uris": ["https://developers.google.com/oauthplayground"],
-    "refresh_token": "1//04bxjs5RcI8QACgYIARAAGAQSNwF-L9IrmFTplCkU9FrcTKAw7RX164Kj5OTv64MHJZzwt6ukHZjAMG8q6eBsJ93ogn5g6QTBgHY",
-    "access_token": "ya29.a0Aa7pCA_u-CzPV6BU_AE9ZN-EUBklXasi1F4VxEaE6T44vAJ4lGd_pLvmW12B6B-WX0yZtbUP6FkKtk2jYGXldH_KyqvgA9oqD64IX5eSCB_AOnWBDlzLQRQ3gpHClorfm67MZmt8jzr_AVtq9Ej4G6IPZpJoBA226Qkv1cJIHkAT0d1qLj1nl6UWMDr957M9GtidefgaCgYKAUcSARQSFQHGX2MiSOh8y95Ym7yrnLV397f_MQ0206"
+    "refresh_token": "1//04ONfu-k_JzSOCgYIARAAGAQSNwF-L9Ir04F16RepA4WkuKGDgorW21UBHWlrYNR9abz470sMt7YmjqEl4sEZzRsXQlEb_FpjD98",
+    "access_token": "ya29.a0Aa7pCA-vdtM7TtSGGvNj-OSr8Jq-Z6L1auYdoapaDlaSJQyYfZmOleRsbMDdiqDJ3d4V4NVXZtM21ZgPunBNg175MfnE2pwJdCCwaqJ5Wr9rT-6c-lzAj1pMQGZB-wbRVRY-55nNI6cYjyv0FaAfLz5WNs48u71gbcSw40sEvuX6xzEv5fl_JJnW4w3m4i5UaI99iaAaCgYKAWISARQSFQHGX2MiViFSLvHZu7c-G0_HetheFA0206"
   }
 }
